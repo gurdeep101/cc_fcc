@@ -14,13 +14,14 @@ from typing import Optional
 import requests
 from flask import Flask, render_template, request
 
+from airports import candidate_icao_codes
 from metar_decoder import decode_metar
 
 # Public, key-less API from the US National Weather Service.
 # Docs: https://aviationweather.gov/data/api/
 API_URL = "https://aviationweather.gov/api/data/metar"
 
-# Airport identifiers are 3-4 letters/digits (IATA/FAA like "JFK", ICAO like "KJFK").
+# Airport identifiers are 3-4 letters/digits (IATA like "JFK", ICAO like "KJFK").
 # Validating up front keeps arbitrary user input out of the upstream request.
 CODE_RE = re.compile(r"^[A-Z0-9]{3,4}$")
 
@@ -63,10 +64,10 @@ def fetch_metar(code: str) -> Optional[dict]:
 
 
 def lookup(code: str) -> Optional[dict]:
-    """Find the latest METAR for a user-supplied code, or None if there isn't one."""
-    # US airports are often typed as 3 letters (JFK), but the API wants the
-    # 4-letter ICAO code, which is "K" + that (KJFK).
-    candidates = [code] if len(code) == 4 else [code, "K" + code]
+    """Find the latest METAR for a user-supplied IATA or ICAO code, or None if there isn't one."""
+    # The API only understands ICAO codes (KJFK), but people usually know the
+    # 3-letter IATA code (JFK), so translate before querying.
+    candidates = candidate_icao_codes(code)
     for candidate in candidates:
         record = fetch_metar(candidate)
         if record:
@@ -94,7 +95,7 @@ def index():
         return render_template("index.html", **ctx)
 
     if not CODE_RE.match(code):
-        ctx["error"] = "Airport codes are 3 or 4 letters/numbers, like KJFK, EGLL or VABB."
+        ctx["error"] = "Airport codes are 3 or 4 letters/numbers, like JFK, LHR, BOM or KJFK."
         return render_template("index.html", **ctx), 400
 
     try:

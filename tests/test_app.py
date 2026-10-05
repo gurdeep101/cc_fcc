@@ -67,3 +67,26 @@ def test_success_page(client):
         r = client.get("/?code=vabb")
     assert r.status_code == 200
     assert b"Mumbai" in r.data and b"wind 6 mph from the northeast" in r.data
+
+
+def test_iata_codes_are_translated_to_icao():
+    from airports import candidate_icao_codes
+    assert candidate_icao_codes("BOM")[0] == "VABB"
+    assert candidate_icao_codes("LHR")[0] == "EGLL"
+    assert candidate_icao_codes("JFK")[0] == "KJFK"
+
+
+def test_icao_codes_pass_through():
+    from airports import candidate_icao_codes
+    assert candidate_icao_codes("VABB") == ["VABB"]
+
+
+def test_unknown_three_letter_code_falls_back_to_k_prefix():
+    from airports import candidate_icao_codes
+    assert candidate_icao_codes("1B9") == ["K1B9"]
+
+
+def test_lookup_queries_the_icao_code_for_an_iata_input():
+    with mock.patch.object(app_module, "fetch_metar", return_value={"rawOb": "x"}) as fetch:
+        assert app_module.lookup("BOM") == {"rawOb": "x"}
+    fetch.assert_called_once_with("VABB")

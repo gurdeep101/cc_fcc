@@ -30,8 +30,8 @@ This project began as a learning exercise from the freeCodeCamp Claude Code cour
 
 ## Features
 
-- Works for airports worldwide, using ICAO codes (`KJFK`, `EGLL`, `VABB`).
-  US airports also work with the 3-letter code (`JFK`).
+- Works for airports worldwide with either **IATA** codes (the 3-letter code on
+  your ticket: `JFK`, `LHR`, `BOM`) or **ICAO** codes (`KJFK`, `EGLL`, `VABB`).
 - Temperatures in °F and °C; wind in mph and knots; visibility in miles and km.
 - Decodes wind gusts and variable wind, visibility, rain, snow, fog, haze,
   thunderstorms and other present weather, cloud layers and ceilings, and
@@ -71,6 +71,9 @@ they run offline.
 | Path | Purpose |
 | --- | --- |
 | `app.py` | Flask app: input validation, fetching from the API, rendering |
+| `airports.py` | Translates 3-letter IATA codes to the ICAO codes the weather API needs |
+| `data/iata_to_icao.json` | Bundled IATA → ICAO table (about 5,000 airports) |
+| `scripts/update_iata_data.py` | Regenerates that table from the Aviation Weather Center station list |
 | `metar_decoder.py` | Pure-Python METAR parser and plain-English converter (no web dependencies, reusable on its own) |
 | `templates/index.html` | The single page template |
 | `static/style.css` | Styling |
@@ -85,7 +88,19 @@ report = decode_metar("METAR VABB 050430Z 05005KT 4000 HZ NSC 32/18 Q1014 NOSIG"
 print(report["headline"])  # Hazy, 90°F (32°C), wind 6 mph from the northeast
 ```
 
+## Updating the airport list
+
+The IATA → ICAO table is bundled with the app so lookups need no extra network
+call. To refresh it with newly added airports:
+
+```bash
+uv run scripts/update_iata_data.py
+```
+
 ## Limitations
+
+- Only airports that publish METAR reports can be looked up; many small
+  airports don't, and will show "no current weather report found".
 
 - Runway visual range, remarks (the part after `RMK`) and forecast trends
   (`TEMPO` / `BECMG`) are not decoded; the raw METAR is still shown.
