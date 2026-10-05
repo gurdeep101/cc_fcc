@@ -1,3 +1,5 @@
+"""Tests for the METAR decoder and the Flask routes (network calls are mocked)."""
+
 import time
 from unittest import mock
 
