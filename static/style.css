@@ -1,0 +1,32 @@
+:root {
+  --bg: #f1f5f9; --card: #fff; --text: #0f172a; --muted: #64748b;
+  --accent: #2563eb; --border: #e2e8f0;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0b1220; --card: #141c2e; --text: #e5e9f0; --muted: #94a3b8; --accent: #3b82f6; --border: #26324a; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, sans-serif; }
+main { max-width: 640px; margin: 0 auto; padding: 32px 16px; }
+h1 { margin: 0 0 4px; }
+.sub { color: var(--muted); margin: 0 0 24px; }
+form { display: flex; gap: 8px; margin-bottom: 20px; }
+input { flex: 1; min-width: 0; padding: 12px; font-size: 1.1rem; text-transform: uppercase;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); }
+button { padding: 12px 18px; font-size: 1rem; border: 0; border-radius: 8px; background: var(--accent); color: #fff; cursor: pointer; }
+button:hover { filter: brightness(1.1); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.error { border-color: #dc2626; color: #dc2626; }
+.place { margin: 0; font-weight: 600; }
+.icao { color: var(--muted); font-weight: 400; margin-left: 6px; }
+.headline { font-size: 1.5rem; line-height: 1.3; margin: 8px 0; font-weight: 600; }
+.meta { color: var(--muted); margin: 0 0 16px; font-size: .9rem; }
+dl { display: grid; grid-template-columns: 9rem 1fr; gap: 10px 12px; margin: 0; border-top: 1px solid var(--border); padding-top: 16px; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+.cat { display: inline-block; padding: 0 8px; border-radius: 6px; color: #fff; font-weight: 600; font-size: .85rem; margin-right: 4px; }
+.VFR { background: #16a34a; } .MVFR { background: #2563eb; } .IFR { background: #dc2626; } .LIFR { background: #c026d3; }
+.note { color: var(--muted); font-size: .9rem; margin: 12px 0 0; }
+details { margin-top: 16px; color: var(--muted); }
+code { display: block; margin-top: 6px; word-break: break-word; }
+@media (max-width: 480px) { dl { grid-template-columns: 1fr; gap: 2px; } dd { margin-bottom: 10px; } }

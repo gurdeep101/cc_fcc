@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>METAR Reader{% if report %} – {{ report.icao }}{% endif %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>METAR Reader</h1>
+    <p class="sub">Type an airport code and get its current weather in plain English.</p>
+
+    <form method="get" action="/">
+      <input type="text" name="code" value="{{ code }}" placeholder="e.g. KJFK, EGLL, VABB"
+             maxlength="4" autocomplete="off" autocapitalize="characters" autofocus required
+             aria-label="Airport code">
+      <button type="submit">Get weather</button>
+    </form>
+
+    {% if error %}
+      <div class="card error" role="alert">{{ error }}</div>
+    {% endif %}
+
+    {% if report %}
+      <section class="card">
+        <p class="place">{{ report.name }} <span class="icao">{{ report.icao }}</span></p>
+        <p class="headline">{{ report.headline }}</p>
+        <p class="meta">Observed {{ report.observed }} ({{ report.age }})</p>
+
+        <dl>
+          {% if report.temp_c is not none %}
+            <dt>Temperature</dt>
+            <dd>{{ report.temp_f }}°F ({{ report.temp_c }}°C)
+              {%- if report.humidity is defined %}, dew point {{ report.dew_f }}°F, humidity about {{ report.humidity }}%{% endif %}</dd>
+          {% endif %}
+
+          {% if report.wind %}
+            <dt>Wind</dt>
+            <dd>
+              {% if report.wind.calm %}Calm
+              {% elif report.wind.variable %}Light and variable, around {{ report.wind.speed_mph }} mph
+              {% else %}{{ report.wind.speed_mph }} mph ({{ report.wind.speed_kt }} kt) from the {{ report.wind.direction_text }}
+              {% endif %}
+              {%- if report.wind.gust_mph %}, gusting to {{ report.wind.gust_mph }} mph{% endif %}
+              {%- if report.wind.variable_range %}; direction shifting between {{ report.wind.variable_range }}{% endif %}
+            </dd>
+          {% endif %}
+
+          {% if report.visibility %}
+            <dt>Visibility</dt><dd>{{ report.visibility }}</dd>
+          {% endif %}
+
+          {% if report.weather %}
+            <dt>Conditions</dt><dd>{{ report.weather | join('; ') | capitalize }}</dd>
+          {% endif %}
+
+          {% if report.clouds %}
+            <dt>Sky</dt><dd>{{ report.clouds | join('; ') | capitalize }}</dd>
+          {% endif %}
+
+          {% if report.pressure %}
+            <dt>Pressure</dt><dd>{{ report.pressure.inhg }} inHg ({{ report.pressure.hpa }} hPa)</dd>
+          {% endif %}
+
+          <dt>Flying conditions</dt>
+          <dd><span class="cat {{ report.flight_category }}">{{ report.flight_category }}</span> {{ report.flight_category_text }}</dd>
+        </dl>
+
+        {% for note in report.notes %}<p class="note">{{ note }}</p>{% endfor %}
+
+        <details>
+          <summary>Raw METAR</summary>
+          <code>{{ report.raw }}</code>
+        </details>
+      </section>
+    {% endif %}
+  </main>
+</body>
+</html>
